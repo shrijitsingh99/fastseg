@@ -24,12 +24,17 @@ FastSeg::FastSeg() {
   nh_private.param("num_segments", num_segments, 1);
   // TODO (shrijitsingh99): Implement fitting of multiple planes
 
+  // Ground Plane Fitting
   ground_plane_fit = new GroundPlaneFitting(sensor_height, threshold_distance, num_iterations, num_lpr, seed_threshold, mirror_reflection_factor, lpr_estimation_mean);
+
+  // Curb Detection
+  curb = new CurbDetection();
 
   all_points_pub =  nh.advertise<sensor_msgs::PointCloud2>("/all_points", 2);
   ground_points_pub = nh.advertise<sensor_msgs::PointCloud2>("/ground", 2);
   no_ground_points_pub = nh.advertise<sensor_msgs::PointCloud2>("/no_ground", 2);
   point_cloud_sub = nh.subscribe("cloud_in", 1,  &FastSeg::point_cloud_callback, this);
+  beam_marker_pub =  nh.advertise<visualization_msgs::Marker>("/beams", 2);
 }
 
 void FastSeg::point_cloud_callback(const sensor_msgs::PointCloud2ConstPtr& point_cloud_msg) {
@@ -40,7 +45,36 @@ void FastSeg::point_cloud_callback(const sensor_msgs::PointCloud2ConstPtr& point
   ground_plane_fit->extract_initial_seeds(point_cloud, seed_points);
   ground_plane_fit->extract_ground(point_cloud, seed_points, ground_cloud, no_ground_cloud);
 
-  sensor_msgs::PointCloud2 all_points_msg, ground_points_msg, no_ground_points_msg;
+  std::vector<PointXYZIRL> beams(720);
+
+  curb->sliding_beam_segmentation(point_cloud, ground_cloud, no_ground_cloud, beams);
+
+
+    visualization_msgs::Marker line_list;
+    line_list.header.frame_id = "/top_laser_link";
+    line_list.header.stamp = ros::Time::now();
+    line_list.ns = "points_and_lines";
+    line_list.action = visualization_msgs::Marker::ADD;
+    line_list.pose.orientation.w = 1.0;
+    line_list.id = 2;
+    line_list.type = visualization_msgs::Marker::LINE_LIST;
+    line_list.scale.x = 0.1;
+    line_list.color.b = 1.0;
+    line_list.color.a = 0.5;
+
+    int i = 0;
+    for (auto point : beams) {
+        geometry_msgs::Point p;
+        p.x = point.x;
+        p.y = point.y;
+        p.z = 0;
+        line_list.points.push_back(p);
+        ++i;
+    }
+
+    beam_marker_pub.publish(line_list);
+
+    sensor_msgs::PointCloud2 all_points_msg, ground_points_msg, no_ground_points_msg;
 
   point_cloud::set_attributes(point_cloud, 0, 0);
   point_cloud::set_attributes(ground_cloud, 0, 0);

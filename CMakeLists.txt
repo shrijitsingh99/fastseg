@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.0.0)
 project(fastseg)
 
-SET(CMAKE_CXX_FLAGS "-std=c++11 -O2 -g -Wall ${CMAKE_CXX_FLAGS}")
+#SET(CMAKE_CXX_FLAGS "-std=c++11 -O2 -g -Wall ${CMAKE_CXX_FLAGS}")
+SET(CMAKE_CXX_FLAGS "-std=c++11 -O2 -g ${CMAKE_CXX_FLAGS}")
 
 find_package(catkin REQUIRED COMPONENTS
         roscpp
         std_msgs
+        visualization_msgs
         pcl_ros
         pcl_conversions
         )
@@ -20,6 +22,7 @@ catkin_package(
         INCLUDE_DIRS include
         CATKIN_DEPENDS
         sensor_msgs
+        visualization_msgs
         std_msgs
         pcl_conversions
         pcl_ros
@@ -36,6 +39,10 @@ add_library(ground_plane_fitting
         src/ground_plane_fitting.cpp
         )
 
+add_library(curb_detection
+        src/curb_detection.cpp
+        )
+
 
 add_library(fastseg
         src/fastseg.cpp
@@ -43,4 +50,4 @@ add_library(fastseg
 
 add_executable(fastseg_ros src/fastseg_ros.cpp)
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(fastseg_ros fastseg ground_plane_fitting ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+target_link_libraries(fastseg_ros fastseg ground_plane_fitting curb_detection ${catkin_LIBRARIES} ${PCL_LIBRARIES})

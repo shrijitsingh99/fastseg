@@ -9,8 +9,10 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl_ros/point_cloud.h>
 #include <pcl_conversions/pcl_conversions.h>
+#include <visualization_msgs/Marker.h>
 
 #include "ground_plane_fitting.h"
+#include "curb_detection.h"
 
 namespace fastseg {
 class FastSeg {
@@ -26,8 +28,10 @@ class FastSeg {
   ros::Publisher all_points_pub;
   ros::Publisher ground_points_pub;
   ros::Publisher no_ground_points_pub;
+  ros::Publisher beam_marker_pub;
 
   GroundPlaneFitting *ground_plane_fit;
+  CurbDetection *curb;
 
   pcl::PointCloud<PointXYZIRL> point_cloud;
   pcl::PointCloud<PointXYZIRL> ground_cloud;

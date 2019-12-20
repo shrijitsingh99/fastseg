@@ -9,6 +9,10 @@
 #include <pcl/pcl_macros.h>
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
+#include <pcl/filters/crop_box.h>
+#include <pcl/filters/impl/crop_box.hpp>
+
+
 
 namespace point_cloud {
 struct PointXYZIRL {
