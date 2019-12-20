@@ -45,15 +45,16 @@ void FastSeg::point_cloud_callback(const sensor_msgs::PointCloud2ConstPtr& point
   ground_plane_fit->extract_initial_seeds(point_cloud, seed_points);
   ground_plane_fit->extract_ground(point_cloud, seed_points, ground_cloud, no_ground_cloud);
 
-  std::vector<PointXYZIRL> beams(720);
+  std::vector<PointXYZIRL> beams;
+  std::vector<PointXYZIRL> directions;
 
-  curb->sliding_beam_segmentation(point_cloud, ground_cloud, no_ground_cloud, beams);
+  curb->sliding_beam_segmentation(point_cloud, ground_cloud, no_ground_cloud, beams, directions);
 
 
     visualization_msgs::Marker line_list;
     line_list.header.frame_id = "/top_laser_link";
     line_list.header.stamp = ros::Time::now();
-    line_list.ns = "points_and_lines";
+    line_list.ns = "beams";
     line_list.action = visualization_msgs::Marker::ADD;
     line_list.pose.orientation.w = 1.0;
     line_list.id = 2;
@@ -72,6 +73,25 @@ void FastSeg::point_cloud_callback(const sensor_msgs::PointCloud2ConstPtr& point
         ++i;
     }
 
+    beam_marker_pub.publish(line_list);
+
+    line_list.points.clear();
+
+    for (auto point : directions) {
+        geometry_msgs::Point p;
+        p.x = point.x;
+        p.y = point.y;
+        p.z = 0.5;
+        line_list.scale.x = 0.2;
+        line_list.color.b = 0.0;
+        line_list.color.g = 1.0;
+        line_list.color.a = 1.0;
+        line_list.points.push_back(p);
+        ++i;
+    }
+
+    line_list.header.stamp = ros::Time::now();
+    line_list.ns = "directions";
     beam_marker_pub.publish(line_list);
 
     sensor_msgs::PointCloud2 all_points_msg, ground_points_msg, no_ground_points_msg;

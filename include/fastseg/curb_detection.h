@@ -16,8 +16,8 @@ class CurbDetection {
  public:
     CurbDetection();
     ~CurbDetection() = default;
-    void sliding_beam_segmentation(pcl::PointCloud<PointXYZIRL> &point_cloud, pcl::PointCloud<PointXYZIRL> &ground_cloud, pcl::PointCloud<PointXYZIRL> &no_ground_cloud, std::vector<PointXYZIRL> &beams);
-
+    void sliding_beam_segmentation(pcl::PointCloud<PointXYZIRL> &point_cloud, pcl::PointCloud<PointXYZIRL> &ground_cloud, pcl::PointCloud<PointXYZIRL> &no_ground_cloud, std::vector<PointXYZIRL> &beams, std::vector<PointXYZIRL> &directions);
+    std::vector<PointXYZIRL> find_peaks(std::vector<PointXYZIRL> beams);
  private:
     double max_range = 30.0;
     unsigned int num_zones = 360;
