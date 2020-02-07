@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="fastseg" name="fastseg_ros" type="fastseg_ros" />
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find fastseg)/rviz/fastseg.rviz" />
+</launch>
